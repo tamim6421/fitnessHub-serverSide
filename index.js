@@ -28,6 +28,7 @@ const client = new MongoClient(uri, {
 const imageCollection = client.db("fitnessHub").collection('images')
 const usersCollection = client.db("fitnessHub").collection('users')
 const trainerCollection = client.db("fitnessHub").collection('trainers')
+const forumPostCollection = client.db("fitnessHub").collection('posts')
 
 
 app.get('/images',  async(req, res) =>{
@@ -61,6 +62,14 @@ app.post('/users', async(req, res) =>{
 })
 
 
+// get users by email 
+app.get('/allusers/:email', async(req, res) =>{
+  const query = {email: req.params.email}
+  const result = await usersCollection.find(query).toArray()
+  res.send(result)
+})
+
+
 
 // store be trainer value 
 app.post('/betrainer',  async(req, res) =>{
@@ -89,6 +98,19 @@ app.get('/trainers',  async(req, res) =>{
  })
  
  
+//  post forum 
+app.post('/posts', async(req, res) =>{
+  try {
+    const post = req.body 
+    const result = await forumPostCollection.insertOne(post)
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
 
 
 
