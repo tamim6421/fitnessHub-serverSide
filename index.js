@@ -115,8 +115,12 @@ app.get('/allpost', async(req, res) =>{
   try {
     const data = req.query 
     console.log(data)
-    const result = await forumPostCollection.find().toArray()
-    res.send(result)
+    const page = parseInt(req.query.page)
+    const size = parseInt(req.query.size)
+    console.log('page', page, size)
+    const count = await forumPostCollection.estimatedDocumentCount()
+    const result = await forumPostCollection.find().skip(page*size).limit(size).toArray()
+    res.send({result, count})
   } catch (error) {
     console.log(error)
   }
