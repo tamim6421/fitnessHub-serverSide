@@ -3,7 +3,7 @@ const cors = require('cors')
 require('dotenv').config()
 const app = express()
 const jwt = require('jsonwebtoken');
-// const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const port = process.env.PORT || 5000 
 
 app.use(cors())
@@ -31,6 +31,7 @@ const trainerCollection = client.db("fitnessHub").collection('trainers')
 const forumPostCollection = client.db("fitnessHub").collection('posts')
 const subscriberCollection = client.db("fitnessHub").collection('subscribe')
 const confirmTrainerCollection = client.db("fitnessHub").collection('confirmTrainer')
+const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
 
 
 
@@ -175,7 +176,7 @@ app.get('/trainers', verifyToken,  async(req, res) =>{
  })
  
 // get the all trainer data 
-app.get('/trainers/:id', verifyToken, verifyAdmin,  async(req, res) =>{
+app.get('/trainers/:id', async(req, res) =>{
   try {
     const id = req.params.id 
   const query = {_id: new ObjectId(id)}
@@ -203,7 +204,7 @@ app.post('/posts', async(req, res) =>{
 app.get('/allpost', async(req, res) =>{
   try {
     const data = req.query 
-    console.log(data)
+    // console.log(data)
     const page = parseInt(req.query.page)
     const size = parseInt(req.query.size)
     console.log('page', page, size)
@@ -257,6 +258,90 @@ try {
   console.log(error)
 }
 })
+
+// get confirm collections data 
+app.get('/accepttrainer', async(req, res) =>{
+ try {
+  const result = await confirmTrainerCollection.find().toArray()
+  res.send(result)
+ } catch (error) {
+  console.log(error)
+ }
+})
+
+
+// get a aspecific trainer 
+app.get('/accepttrainer/:id', async(req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const result = await confirmTrainerCollection.findOne(query)
+    res.send(result)
+  } catch (error) {
+    
+  }
+})
+
+// update payment  status 
+app.patch('/accepttrainer/role/:id',verifyToken, verifyAdmin, async( req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const updatedDoc ={
+      $set:{
+        paymentStatus:'Paid'
+      }
+    }
+    const result = await confirmTrainerCollection.updateOne(query, updatedDoc)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// payment data 
+app.post('/payment', async(req, res) =>{
+ try {
+  const payment = req.body 
+  const result = await paymentInfoCollection.insertOne(payment)
+  res.send(result)
+ } catch (error) {
+  console.log(error)
+ }
+
+})
+
+
+
+
+// payment related api 
+
+app.post('/make-payment-intent', async (req, res) => {
+  const { price } = req.body;
+console.log(price)
+  const amount = parseFloat(price);
+  if (isNaN(amount)) {
+    return res.status(400).send({ error: 'Invalid price value' });
+  }
+
+  const amountInCents = parseInt(amount * 100);
+
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountInCents,
+      currency: 'usd',
+      payment_method_types: ['card'],
+    });
+
+    res.send({
+      clientSecret: paymentIntent.client_secret,
+    });
+  } catch (error) {
+    console.error(' payment intent:', error);
+    res.status(500).send({ error: 'Internal server error' });
+  }
+});
 
 
 
