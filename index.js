@@ -29,6 +29,8 @@ const imageCollection = client.db("fitnessHub").collection('images')
 const usersCollection = client.db("fitnessHub").collection('users')
 const trainerCollection = client.db("fitnessHub").collection('trainers')
 const forumPostCollection = client.db("fitnessHub").collection('posts')
+const subscriberCollection = client.db("fitnessHub").collection('subscribe')
+
 
 
 app.get('/images',  async(req, res) =>{
@@ -123,6 +125,30 @@ app.get('/allpost', async(req, res) =>{
     res.send({result, count})
   } catch (error) {
     console.log(error)
+  }
+})
+
+
+// subscriber collections in the home page 
+app.post('/subscriber', async(req, res) =>{
+  try {
+    const subscriber = req.body 
+    const result = await subscriberCollection.insertOne(subscriber)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// get all subscribers 
+app.get('/allsubscriber', async(req, res) =>{
+  try {
+    const result = await subscriberCollection.find().toArray()
+    res.send(result)
+    
+  } catch (error) {
+    console.log(collection)
   }
 })
 
