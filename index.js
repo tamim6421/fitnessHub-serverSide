@@ -12,7 +12,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.PROJECT_NAME}:${process.env.PROJECT_PASS}@cluster0.iimwc2a.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -30,8 +30,7 @@ const usersCollection = client.db("fitnessHub").collection('users')
 const trainerCollection = client.db("fitnessHub").collection('trainers')
 const forumPostCollection = client.db("fitnessHub").collection('posts')
 const subscriberCollection = client.db("fitnessHub").collection('subscribe')
-
-
+const confirmTrainerCollection = client.db("fitnessHub").collection('confirmTrainer')
 
 app.get('/images',  async(req, res) =>{
  try {
@@ -63,6 +62,33 @@ app.post('/users', async(req, res) =>{
  }
 })
 
+// get all users 
+app.get('/alluser',  async(req, res) =>{
+  try {
+   const result = await usersCollection.find().toArray()
+   res.send(result)
+   
+  } catch (error) {
+   console.log(error)
+  }
+ })
+
+// edits user roll 
+app.patch('/users/role/:id', async( req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const updatedDoc ={
+      $set:{
+        role:'trainer'
+      }
+    }
+    const result = await usersCollection.updateOne(query, updatedDoc)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 // get users by email 
 app.get('/allusers/:email', async(req, res) =>{
@@ -88,12 +114,24 @@ app.post('/betrainer',  async(req, res) =>{
  }
 })
 
-// get the trainer data 
+// get the all trainer data 
 app.get('/trainers',  async(req, res) =>{
   try {
    const result = await trainerCollection.find().toArray()
    res.send(result)
    
+  } catch (error) {
+   console.log(error)
+  }
+ })
+ 
+// get the all trainer data 
+app.get('/trainers/:id',  async(req, res) =>{
+  try {
+    const id = req.params.id 
+  const query = {_id: new ObjectId(id)}
+  const result = await trainerCollection.findOne(query)
+  res.send(result)
   } catch (error) {
    console.log(error)
   }
@@ -152,6 +190,24 @@ app.get('/allsubscriber', async(req, res) =>{
   }
 })
 
+
+// confirm trainer api 
+app.post('/confirm/trainer', async(req, res) =>{
+try {
+  const trainer = req.body 
+  const result = await confirmTrainerCollection.insertOne(trainer)
+
+  // delete applied data to the trainerCollection 
+  const query = { _id: new ObjectId(trainer.trainerId) };
+  const deleteResult = await trainerCollection.deleteOne(query);
+  console.log(trainer)
+  res.send(result)
+
+  
+} catch (error) {
+  console.log(error)
+}
+})
 
 
 
