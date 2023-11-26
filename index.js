@@ -242,6 +242,29 @@ app.post('/classes', async(req, res) =>{
   }
 })
 
+// get class 
+app.get('/getclass', async(req, res) =>{
+  try {
+    const result = await classCollection.find().toArray()
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+// get a class 
+app.get('/getclassdetails/:id', async(req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const result = await classCollection.findOne(query)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 
 // subscriber collections in the home page 
 app.post('/subscriber', async(req, res) =>{
