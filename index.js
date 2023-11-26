@@ -201,6 +201,17 @@ app.post('/posts', async(req, res) =>{
 })
 
 // get post data 
+app.get('/blog', async (req, res) =>{
+  try {
+    const result = await forumPostCollection.find().toArray()
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+// get post data 
 app.get('/allpost', async(req, res) =>{
   try {
     const data = req.query 
