@@ -33,6 +33,7 @@ const subscriberCollection = client.db("fitnessHub").collection('subscribe')
 const confirmTrainerCollection = client.db("fitnessHub").collection('confirmTrainer')
 const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
 const classCollection = client.db("fitnessHub").collection('class')
+const slotCollection = client.db("fitnessHub").collection('slot')
 
 
 
@@ -82,6 +83,28 @@ const verifyAdmin = async(req, res, next) =>{
 
 
 
+// slot collections 
+app.post('/slot', async(req, res) =>{
+  try {
+    const slots = req.body
+    const result = await slotCollection.insertMany(slots)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// get slot data 
+app.get('/getslot', async (req, res) =>{
+  try {
+      const result = await slotCollection.find().toArray()
+      res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 // image collection
 app.get('/images',  async(req, res) =>{
  try {
@@ -111,6 +134,30 @@ app.post('/users', async(req, res) =>{
  } catch (error) {
   console.log(error)
  }
+})
+
+// put users 
+
+app.put('/users/:id', async(req, res) =>{
+  try {
+    const id = req.params.id 
+    const user = req.body 
+    const filter = {_id: new ObjectId(id)}
+    const option = {upsert: true}
+    const updateDoc = {
+      $set:{
+        name: user.name ,
+        photo: user.photo,
+        number: user.number,
+        address: user.address
+      }
+    }
+    const  result = await usersCollection.updateOne(filter, updateDoc, option)
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
 })
 
 // get all users 
