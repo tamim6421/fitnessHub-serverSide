@@ -32,6 +32,7 @@ const forumPostCollection = client.db("fitnessHub").collection('posts')
 const subscriberCollection = client.db("fitnessHub").collection('subscribe')
 const confirmTrainerCollection = client.db("fitnessHub").collection('confirmTrainer')
 const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
+const classCollection = client.db("fitnessHub").collection('class')
 
 
 
@@ -222,6 +223,20 @@ app.get('/allpost', async(req, res) =>{
     const count = await forumPostCollection.estimatedDocumentCount()
     const result = await forumPostCollection.find().skip(page*size).limit(size).toArray()
     res.send({result, count})
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// post class collections 
+
+app.post('/classes', async(req, res) =>{
+  try {
+    const classes = req.body
+    const result = await classCollection.insertOne(classes)
+    res.send(result)
+    
   } catch (error) {
     console.log(error)
   }
