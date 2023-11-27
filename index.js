@@ -118,6 +118,27 @@ app.get('/getslot', async (req, res) =>{
   }
 })
 
+// edit slot button status by trainer 
+app.patch('/slots/status/:id',verifyToken,async( req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const updatedDoc ={
+      $set:{
+        status:'rejected'
+      }
+    }
+    const result = await slotCollection.updateOne(query, updatedDoc)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+
+
+
 // get a specific slot 
 app.get('/getslot/:id', async(req, res) =>{
   try {
@@ -149,6 +170,19 @@ app.put('/putslot/:id', async(req, res) =>{
     const  result = await slotCollection.updateOne(filter, updateDoc, option)
     res.send(result)
     
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+// get slot by specific email 
+app.get('/yourslot/:email', async(req, res) =>{
+  try {
+    const query = {email: req.params.email}
+    const result = await slotCollection.find(query).toArray()
+    console.log(result)
+    res.send(result)
+    console.log(query)
   } catch (error) {
     console.log(error)
   }
@@ -271,6 +305,24 @@ app.get('/trainers', verifyToken,  async(req, res) =>{
    console.log(error)
   }
  })
+
+
+//  edit trainer status 
+app.patch('/trainers/status/:id',verifyToken,async( req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const updatedDoc ={
+      $set:{
+        status:'rejected'
+      }
+    }
+    const result = await trainerCollection.updateOne(query, updatedDoc)
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
  
 // get the all trainer data 
 app.get('/trainers/:id', async(req, res) =>{
