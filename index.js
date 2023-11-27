@@ -34,6 +34,7 @@ const confirmTrainerCollection = client.db("fitnessHub").collection('confirmTrai
 const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
 const classCollection = client.db("fitnessHub").collection('class')
 const slotCollection = client.db("fitnessHub").collection('slot')
+const userPaymentCollection = client.db("fitnessHub").collection('userPayment')
 
 
 
@@ -445,6 +446,19 @@ app.post('/payment', async(req, res) =>{
 })
 
 
+// const user payment collections
+app.post('/userpayment', async(req, res) =>{
+  try {
+   const payment = req.body 
+   console.log(req.body)
+   const result = await userPaymentCollection.insertOne(payment)
+   res.send(result)
+  } catch (error) {
+   console.log(error)
+  }
+ 
+ })
+ 
 
 
 // payment related api 
