@@ -105,6 +105,42 @@ app.get('/getslot', async (req, res) =>{
   }
 })
 
+// get a specific slot 
+app.get('/getslot/:id', async(req, res) =>{
+  try {
+    const id = req.params.id 
+    const query = {_id: new ObjectId(id)}
+    const result = await slotCollection.findOne(query)
+    res.send(result)
+  } catch (error) {
+    
+  }
+})
+
+// put using slotCollection 
+
+app.put('/putslot/:id', async(req, res) =>{
+  try {
+    const id = req.params.id 
+    const info = req.body 
+    console.log(info)
+    const filter = {_id: new ObjectId(id)}
+    const option = {upsert: true}
+    const updateDoc = {
+      $set:{
+        package: info.package ,
+        price: info.price,
+        user: info.user
+      }
+    }
+    const  result = await slotCollection.updateOne(filter, updateDoc, option)
+    res.send(result)
+    
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 // image collection
 app.get('/images',  async(req, res) =>{
  try {
