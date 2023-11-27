@@ -35,6 +35,8 @@ const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
 const classCollection = client.db("fitnessHub").collection('class')
 const slotCollection = client.db("fitnessHub").collection('slot')
 const userPaymentCollection = client.db("fitnessHub").collection('userPayment')
+const totalBalanceCollection = client.db("fitnessHub").collection('totalBalance')
+
 
 
 
@@ -67,6 +69,16 @@ const verifyToken = (req, res, next)=>{
 }
 
 
+// get total balance 
+app.get('/getBalance', async(req, res) =>{
+  try {
+    const result = await totalBalanceCollection.find().toArray()
+    res.send(result)
+
+  } catch (error) {
+    console.log(error)
+  }
+})
 
 
 // verification  admin 
@@ -445,6 +457,16 @@ app.post('/payment', async(req, res) =>{
 
 })
 
+// get info 
+app.get('/remaininbalance', async(req, res) =>{
+  try {
+   const result = await paymentInfoCollection.find().toArray()
+   res.send(result)
+  } catch (error) {
+   console.log(error)
+  }
+ })
+ 
 
 // const user payment collections
 app.post('/userpayment', async(req, res) =>{
@@ -458,6 +480,17 @@ app.post('/userpayment', async(req, res) =>{
   }
  
  })
+
+//  get user payment collections 
+app.get('/memberPay', async(req, res) =>{
+  try {
+   const result = await userPaymentCollection.find().toArray()
+   res.send(result)
+  } catch (error) {
+   console.log(error)
+  }
+ })
+ 
  
 
 
