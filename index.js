@@ -52,7 +52,7 @@ app.post('/jwt', async(req, res) =>{
 
 // middleware
 const verifyToken = (req, res, next)=>{
-  console.log('inside verify token', req.headers.authorization)
+  console.log('inside verify token', req.headers)
  
   if(!req.headers.authorization){
     return res.status(401).send({message: 'unauthorized access'})
@@ -140,7 +140,7 @@ app.patch('/slots/status/:id',verifyToken,async( req, res) =>{
 
 
 // get a specific slot 
-app.get('/getslot/:id', async(req, res) =>{
+app.get('/getslot/:id', verifyToken, async(req, res) =>{
   try {
     const id = req.params.id 
     const query = {_id: new ObjectId(id)}
@@ -153,7 +153,7 @@ app.get('/getslot/:id', async(req, res) =>{
 
 // put using slotCollection 
 
-app.put('/putslot/:id', async(req, res) =>{
+app.put('/putslot/:id',verifyToken, async(req, res) =>{
   try {
     const id = req.params.id 
     const info = req.body 
@@ -176,7 +176,7 @@ app.put('/putslot/:id', async(req, res) =>{
 })
 
 // get slot by specific email 
-app.get('/yourslot/:email', async(req, res) =>{
+app.get('/yourslot/:email', verifyToken, async(req, res) =>{
   try {
     const query = {email: req.params.email}
     const result = await slotCollection.find(query).toArray()
@@ -221,7 +221,7 @@ app.post('/users', async(req, res) =>{
 
 // put users 
 
-app.put('/users/:id', async(req, res) =>{
+app.put('/users/:id', verifyToken, async(req, res) =>{
   try {
     const id = req.params.id 
     const user = req.body 
@@ -272,7 +272,7 @@ app.patch('/users/role/:id',verifyToken, verifyAdmin, async( req, res) =>{
 })
 
 // get users by email 
-app.get('/allusers/:email', async(req, res) =>{
+app.get('/allusers/:email',  async(req, res) =>{
   const query = {email: req.params.email}
   const result = await usersCollection.find(query).toArray()
   res.send(result)
@@ -281,7 +281,7 @@ app.get('/allusers/:email', async(req, res) =>{
 
 
 // store be trainer value 
-app.post('/betrainer',  async(req, res) =>{
+app.post('/betrainer',   async(req, res) =>{
  try {
   const item = req.body 
   // if (item._id) {
@@ -296,7 +296,7 @@ app.post('/betrainer',  async(req, res) =>{
 })
 
 // get the all trainer data 
-app.get('/trainers', verifyToken,  async(req, res) =>{
+app.get('/trainers',   async(req, res) =>{
   try {
    const result = await trainerCollection.find().toArray()
    res.send(result)
@@ -308,7 +308,7 @@ app.get('/trainers', verifyToken,  async(req, res) =>{
 
 
 //  edit trainer status 
-app.patch('/trainers/status/:id',verifyToken,async( req, res) =>{
+app.patch('/trainers/status/:id', verifyToken, async( req, res) =>{
   try {
     const id = req.params.id 
     const query = {_id: new ObjectId(id)}
@@ -325,7 +325,7 @@ app.patch('/trainers/status/:id',verifyToken,async( req, res) =>{
 })
  
 // get the all trainer data 
-app.get('/trainers/:id', async(req, res) =>{
+app.get('/trainers/:id', verifyToken, async(req, res) =>{
   try {
     const id = req.params.id 
   const query = {_id: new ObjectId(id)}
@@ -361,7 +361,7 @@ app.get('/blog', async (req, res) =>{
 })
 
 // get post data 
-app.get('/allpost', async(req, res) =>{
+app.get('/allpost',  async(req, res) =>{
   try {
     const data = req.query 
     // console.log(data)
@@ -379,7 +379,7 @@ app.get('/allpost', async(req, res) =>{
 
 // post class collections 
 
-app.post('/classes', async(req, res) =>{
+app.post('/classes', verifyToken, async(req, res) =>{
   try {
     const classes = req.body
     const result = await classCollection.insertOne(classes)
@@ -498,7 +498,7 @@ app.patch('/accepttrainer/role/:id',verifyToken, verifyAdmin, async( req, res) =
 
 
 // payment data 
-app.post('/payment', async(req, res) =>{
+app.post('/payment', verifyToken, async(req, res) =>{
  try {
   const payment = req.body 
   const result = await paymentInfoCollection.insertOne(payment)
@@ -510,7 +510,7 @@ app.post('/payment', async(req, res) =>{
 })
 
 // get info 
-app.get('/remaininbalance', async(req, res) =>{
+app.get('/remaininbalance', verifyToken, verifyAdmin, async(req, res) =>{
   try {
    const result = await paymentInfoCollection.find().toArray()
    res.send(result)
@@ -521,7 +521,7 @@ app.get('/remaininbalance', async(req, res) =>{
  
 
 // const user payment collections
-app.post('/userpayment', async(req, res) =>{
+app.post('/userpayment', verifyToken,  async(req, res) =>{
   try {
    const payment = req.body 
    console.log(req.body)
@@ -534,7 +534,7 @@ app.post('/userpayment', async(req, res) =>{
  })
 
 //  get user payment collections 
-app.get('/memberPay', async(req, res) =>{
+app.get('/memberPay', verifyToken, async(req, res) =>{
   try {
    const result = await userPaymentCollection.find().toArray()
    res.send(result)
@@ -550,14 +550,14 @@ app.get('/memberPay', async(req, res) =>{
 
 app.post('/make-payment-intent', async (req, res) => {
   const { price } = req.body;
-console.log(price)
+console.log("price",price)
   const amount = parseFloat(price);
   if (isNaN(amount)) {
     return res.status(400).send({ error: 'Invalid price value' });
   }
 
-  const amountInCents = parseInt(amount * 100);
-
+  const amountInCents = (amount * 100)
+console.log('price', amount)
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
