@@ -138,6 +138,10 @@ app.patch('/slots/status/:id',verifyToken,async( req, res) =>{
 
 
 
+// get slot by email 
+
+
+
 
 
 // get a specific slot 
@@ -188,6 +192,7 @@ app.get('/yourslot/:email', verifyToken, async(req, res) =>{
     console.log(error)
   }
 })
+
 
 // image collection
 app.get('/images',  async(req, res) =>{
