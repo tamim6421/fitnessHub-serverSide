@@ -1,9 +1,10 @@
 const express = require('express')
-const cors = require('cors')
 require('dotenv').config()
-const app = express()
+const cors = require('cors')
 const jwt = require('jsonwebtoken');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const app = express()
 const port = process.env.PORT || 5000 
 
 app.use(cors())
@@ -12,7 +13,7 @@ app.use(express.json())
 
 
 
-const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+
 const uri = `mongodb+srv://${process.env.PROJECT_NAME}:${process.env.PROJECT_PASS}@cluster0.iimwc2a.mongodb.net/?retryWrites=true&w=majority`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -359,6 +360,20 @@ app.get('/blog', async (req, res) =>{
     console.log(error)
   }
 })
+
+// get a single blog by id 
+app.get('/blog/:id',  async(req, res) =>{
+  try {
+    const id = req.params.id 
+  const query = {_id: new ObjectId(id)}
+  const result = await forumPostCollection.findOne(query)
+  res.send(result)
+  } catch (error) {
+   console.log(error)
+  }
+ })
+ 
+
 
 // get post data 
 app.get('/allpost',  async(req, res) =>{
