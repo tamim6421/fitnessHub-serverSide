@@ -27,6 +27,7 @@ const client = new MongoClient(uri, {
 
 
 const imageCollection = client.db("fitnessHub").collection('images')
+const reviewCollection = client.db("fitnessHub").collection('reviews')
 const usersCollection = client.db("fitnessHub").collection('users')
 const trainerCollection = client.db("fitnessHub").collection('trainers')
 const forumPostCollection = client.db("fitnessHub").collection('posts')
@@ -74,6 +75,17 @@ const verifyToken = (req, res, next)=>{
 app.get('/getBalance', async(req, res) =>{
   try {
     const result = await totalBalanceCollection.find().toArray()
+    res.send(result)
+
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+// get all review 
+app.get('/gereview', async(req, res) =>{
+  try {
+    const result = await reviewCollection.find().toArray()
     res.send(result)
 
   } catch (error) {
