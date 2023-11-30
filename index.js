@@ -197,6 +197,10 @@ app.get('/yourslot/:email', verifyToken, async(req, res) =>{
 // image collection
 app.get('/images',  async(req, res) =>{
  try {
+  // console.log(req.query)
+  // const limit = req.query.limit 
+  // const offset = req.query.offset 
+
   const result = await imageCollection.find().toArray()
   res.send(result)
   
@@ -204,6 +208,24 @@ app.get('/images',  async(req, res) =>{
   console.log(error)
  }
 })
+
+app.get('/image', async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 10
+    const offset = parseInt(req.query.offset) || 0
+
+    const photos = await imageCollection.find().skip(offset).limit(limit).toArray();
+    const photosCounts = await imageCollection.countDocuments()
+    res.send({photos, photosCounts});
+
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: 'Internal Server Error' });
+  }
+});
+
+
+
 
 
 // get user information when user create account 
@@ -564,6 +586,17 @@ app.get('/memberPay', verifyToken, async(req, res) =>{
  })
  
  
+//  get member pay by email 
+// app.get('/memberpay/:email', async(req, res) =>{
+//   try {
+//     const query = {email: req.params.email}
+//     const result = await userPaymentCollection.find(query).toArray()
+//     res.send(result)
+    
+//   } catch (error) {
+//     console.log(error)
+//   }
+// })
 
 
 // payment related api 
