@@ -157,7 +157,21 @@ app.patch('/slots/status/:id',verifyToken,async( req, res) =>{
 
 
 // get a specific slot 
-app.get('/getslot/:id', verifyToken, async(req, res) =>{
+app.get('/getslot/:id', async(req, res) =>{
+  try {
+    
+    const id = req.params.id 
+    console.log(id)
+    const query = {_id: new ObjectId(id)}
+    const result = await slotCollection.findOne(query)
+    res.send(result)
+  } catch (error) {
+    
+  }
+})
+
+
+app.get('/getslots/:id', async(req, res) =>{
   try {
     const id = req.params.id 
     const query = {_id: new ObjectId(id)}
