@@ -4,6 +4,7 @@ const cors = require('cors')
 const jwt = require('jsonwebtoken');
 const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+const SSLCommerzPayment = require('sslcommerz-lts')
 const app = express()
 const port = process.env.PORT || 5000 
 
@@ -24,6 +25,12 @@ const client = new MongoClient(uri, {
     deprecationErrors: true,
   }
 });
+
+
+// for sslCommerz 
+const store_id = process.env.STORE_ID
+const store_passwd = process.env.STORE_PASS
+const is_live = false //true for live, false for sandbox
 
 
 const imageCollection = client.db("fitnessHub").collection('images')
@@ -107,8 +114,6 @@ const verifyAdmin = async(req, res, next) =>{
   next()
 }
 
-
-
 // slot collections 
 app.post('/slot', async(req, res) =>{
   try {
@@ -151,10 +156,6 @@ app.patch('/slots/status/:id',verifyToken,async( req, res) =>{
 
 
 // get slot by email 
-
-
-
-
 
 // get a specific slot 
 app.get('/getslot/:id', async(req, res) =>{
@@ -629,14 +630,14 @@ app.get('/memberPay', verifyToken, async(req, res) =>{
 
 app.post('/make-payment-intent', async (req, res) => {
   const { price } = req.body;
-console.log("price",price)
+// console.log("price",price)
   const amount = parseFloat(price);
   if (isNaN(amount)) {
     return res.status(400).send({ error: 'Invalid price value' });
   }
 
   const amountInCents = (amount * 100)
-console.log('price', amount)
+// console.log('price', amount)
   try {
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountInCents,
@@ -652,6 +653,58 @@ console.log('price', amount)
     res.status(500).send({ error: 'Internal server error' });
   }
 });
+
+
+
+// sslCommerz Payment routes 
+app.post('/sslpayment', async (req, res) =>{
+  const info = req.body
+  const price = req.body.price
+  const tran_id = new ObjectId().toString()
+
+  const data = {
+    total_amount: price,
+    currency: 'BDT',
+    tran_id: tran_id, // use unique tran_id for each api call
+    success_url: 'http://localhost:3030/success',
+    fail_url: 'http://localhost:3030/fail',
+    cancel_url: 'http://localhost:3030/cancel',
+    ipn_url: 'http://localhost:3030/ipn',
+    shipping_method: 'Courier',
+    product_name: 'Computer.',
+    product_category: 'Electronic',
+    product_profile: 'general',
+    cus_name: info.userInfo.displayName,
+    cus_email: info.userInfo.email,
+    cus_add1: 'Dhaka',
+    cus_add2: 'Dhaka',
+    cus_city: 'Dhaka',
+    cus_state: 'Dhaka',
+    cus_postcode: '1000',
+    cus_country: 'Bangladesh',
+    cus_phone: '01711111111',
+    cus_fax: '01711111111',
+    ship_name: 'Customer Name',
+    ship_add1: 'Dhaka',
+    ship_add2: 'Dhaka',
+    ship_city: 'Dhaka',
+    ship_state: 'Dhaka',
+    ship_postcode: 1000,
+    ship_country: 'Bangladesh',
+};
+
+console.log(data)
+const sslcz = new SSLCommerzPayment(store_id, store_passwd, is_live)
+sslcz.init(data).then(apiResponse => {
+    // Redirect the user to payment gateway
+    let GatewayPageURL = apiResponse.GatewayPageURL
+    res.send({url: GatewayPageURL})
+    console.log('Redirecting to: ', GatewayPageURL)
+});
+
+
+
+})
 
 
 
