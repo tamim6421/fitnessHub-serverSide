@@ -667,8 +667,8 @@ app.post('/sslpayment', async (req, res) =>{
     total_amount: price,
     currency: 'BDT',
     tran_id: tran_id, // use unique tran_id for each api call
-    success_url: `http://localhost:5000/payment/success/${tran_id}`,
-    fail_url: `http://localhost:5000/payment/fail/${tran_id}`,
+    success_url: `https://fithub-server-eta.vercel.app/payment/success/${tran_id}`,
+    fail_url: `https://fithub-server-eta.vercel.app/payment/fail/${tran_id}`,
     cancel_url: 'http://localhost:3030/cancel',
     ipn_url: 'http://localhost:3030/ipn',
     shipping_method: 'Courier',
@@ -721,7 +721,7 @@ app.post('/payment/success/:tranId', async(req, res) =>{
   }
  })
  if(result.modifiedCount > 0){
-  res.redirect(`http://localhost:5173/payment/success/${req.params.tranId}`)
+  res.redirect(`https://fithub-6d217.web.app/payment/success/${req.params.tranId}`)
  }
 })
 
@@ -729,7 +729,7 @@ app.post('/payment/success/:tranId', async(req, res) =>{
 app.post('/payment/fail/:tranId', async(req, res) =>{
   const result = await sslPayCollection.deleteOne({transactionId:req.params.tranId })
   if( result.deletedCount){
-    res.redirect(`http://localhost:5173/payment/fail/${req.params.tranId}`)
+    res.redirect(`https://fithub-6d217.web.app/payment/fail/${req.params.tranId}`)
   }
 })
 
