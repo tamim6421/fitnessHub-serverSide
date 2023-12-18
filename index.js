@@ -44,6 +44,7 @@ const paymentInfoCollection = client.db("fitnessHub").collection('paymentInfo')
 const classCollection = client.db("fitnessHub").collection('class')
 const slotCollection = client.db("fitnessHub").collection('slot')
 const userPaymentCollection = client.db("fitnessHub").collection('userPayment')
+const sslPayCollection = client.db("fitnessHub").collection('sslPayment')
 const totalBalanceCollection = client.db("fitnessHub").collection('totalBalance')
 
 
@@ -666,8 +667,8 @@ app.post('/sslpayment', async (req, res) =>{
     total_amount: price,
     currency: 'BDT',
     tran_id: tran_id, // use unique tran_id for each api call
-    success_url: 'http://localhost:3030/success',
-    fail_url: 'http://localhost:3030/fail',
+    success_url: `http://localhost:5000/payment/success/${tran_id}`,
+    fail_url: `http://localhost:5000/payment/fail/${tran_id}`,
     cancel_url: 'http://localhost:3030/cancel',
     ipn_url: 'http://localhost:3030/ipn',
     shipping_method: 'Courier',
@@ -699,9 +700,38 @@ sslcz.init(data).then(apiResponse => {
     // Redirect the user to payment gateway
     let GatewayPageURL = apiResponse.GatewayPageURL
     res.send({url: GatewayPageURL})
+
+    const finalPay = {
+      info, 
+      paidStatus: false,
+      price: price,
+      transactionId: tran_id,
+    }
+    const result =  sslPayCollection.insertOne(finalPay)
     console.log('Redirecting to: ', GatewayPageURL)
 });
 
+
+// for payment success route 
+app.post('/payment/success/:tranId', async(req, res) =>{
+ console.log(req.params.tranId)
+ const result = await sslPayCollection.updateOne({transactionId: req.params.tranId}, {
+  $set:{
+    paidStatus: true,
+  }
+ })
+ if(result.modifiedCount > 0){
+  res.redirect(`http://localhost:5173/payment/success/${req.params.tranId}`)
+ }
+})
+
+// payment fail route 
+app.post('/payment/fail/:tranId', async(req, res) =>{
+  const result = await sslPayCollection.deleteOne({transactionId:req.params.tranId })
+  if( result.deletedCount){
+    res.redirect(`http://localhost:5173/payment/fail/${req.params.tranId}`)
+  }
+})
 
 
 })
