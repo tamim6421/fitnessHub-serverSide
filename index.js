@@ -737,6 +737,16 @@ app.post('/payment/fail/:tranId', async(req, res) =>{
 })
 
 
+// get ssl paymet info 
+app.get('/allsslpayment', async(req, res) =>{
+  try {
+    const result = await sslPayCollection.find().toArray()
+    res.send(result)
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 
 async function run() {
   try {
